@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GameZone - Kumpulan Game Seru</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1><i class="fas fa-gamepad"></i> GameZone</h1>
+                <p class="tagline">Kumpulan game seru dan edukatif untuk mengisi waktu luang!</p>
+                <div class="player-info">
+                    <div class="player-name">
+                        <i class="fas fa-user"></i>
+                        <span id="player-name">Player</span>
+                    </div>
+                    <button id="change-name" class="small-btn">
+                        <i class="fas fa-edit"></i> Ganti Nama
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="game-nav">
+            <button class="game-btn active" data-game="math">
+                <i class="fas fa-calculator"></i> Matematika
+            </button>
+            <button class="game-btn" data-game="tic">
+                <i class="fas fa-times-circle"></i> Tic Tac Toe
+            </button>
+            <button class="game-btn" data-game="blast">
+                <i class="fas fa-bomb"></i> Block Blast
+            </button>
+            <button class="game-btn" data-game="memory">
+                <i class="fas fa-brain"></i> Memory Game
+            </button>
+        </div>
+
+        <main class="game-container">
+            <!-- Game Matematika -->
+            <section class="game-section math-game active" id="math-game">
+                <div class="game-header">
+                    <h2><i class="fas fa-calculator"></i> Game Matematika</h2>
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <i class="fas fa-star"></i>
+                            <span>Skor: <span id="math-score">0</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-clock"></i>
+                            <span>Waktu: <span id="math-time">60</span>s</span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Level: <span id="math-level">1</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-instruction">
+                    <p><i class="fas fa-info-circle"></i> Jawab soal matematika secepat mungkin! Setiap jawaban benar mendapat 10 poin. Waktu terbatas!</p>
+                </div>
+                
+                <div class="math-content">
+                    <div class="math-question" id="math-question">5 + 3 = ?</div>
+                    
+                    <div class="input-group">
+                        <input type="number" class="math-answer" id="math-answer" placeholder="Masukkan jawaban">
+                        <button class="action-btn" id="check-answer">
+                            <i class="fas fa-check"></i> Cek Jawaban
+                        </button>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button class="control-btn" id="next-question">
+                            <i class="fas fa-forward"></i> Soal Berikutnya
+                        </button>
+                        <button class="control-btn" id="reset-math">
+                            <i class="fas fa-redo"></i> Mulai Ulang
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Tic Tac Toe -->
+            <section class="game-section tic-tac-toe" id="tic-game">
+                <div class="game-header">
+                    <h2><i class="fas fa-times-circle"></i> Tic Tac Toe</h2>
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <i class="fas fa-trophy"></i>
+                            <span>Menang: <span id="tic-wins">0</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-times"></i>
+                            <span>Kalah: <span id="tic-losses">0</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-handshake"></i>
+                            <span>Seri: <span id="tic-draws">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-instruction">
+                    <p><i class="fas fa-info-circle"></i> Mainkan Tic Tac Toe melawan komputer. Dapatkan 3 simbol berurutan untuk menang!</p>
+                </div>
+                
+                <div class="tic-content">
+                    <div class="tic-status" id="tic-status">Giliran: <span class="player-turn">X</span> (Kamu)</div>
+                    
+                    <div class="tic-board" id="tic-board">
+                        <!-- Sel akan dibuat dengan JavaScript -->
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button class="control-btn" id="reset-tic">
+                            <i class="fas fa-redo"></i> Main Lagi
+                        </button>
+                        <button class="control-btn" id="change-mode">
+                            <i class="fas fa-robot"></i> Mode: vs Komputer
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Block Blast -->
+            <section class="game-section block-blast" id="blast-game">
+                <div class="game-header">
+                    <h2><i class="fas fa-bomb"></i> Block Blast</h2>
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <i class="fas fa-star"></i>
+                            <span>Skor: <span id="blast-score">0</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-running"></i>
+                            <span>Gerakan: <span id="blast-moves">30</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-fire"></i>
+                            <span>Kombo: <span id="blast-combo">0</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-instruction">
+                    <p><i class="fas fa-info-circle"></i> Klik kelompok balok dengan warna sama untuk menghancurkannya. Dapatkan poin sebanyak-banyaknya!</p>
+                </div>
+                
+                <div class="blast-content">
+                    <div class="blast-grid" id="blast-grid">
+                        <!-- Sel akan dibuat dengan JavaScript -->
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button class="control-btn" id="reset-blast">
+                            <i class="fas fa-redo"></i> Mulai Ulang
+                        </button>
+                        <button class="control-btn" id="hint-blast">
+                            <i class="fas fa-lightbulb"></i> Petunjuk
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Game Memory -->
+            <section class="game-section memory-game" id="memory-game">
+                <div class="game-header">
+                    <h2><i class="fas fa-brain"></i> Memory Game</h2>
+                    <div class="game-stats">
+                        <div class="stat-box">
+                            <i class="fas fa-shoe-prints"></i>
+                            <span>Gerakan: <span id="memory-moves">0</span></span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-puzzle-piece"></i>
+                            <span>Pasangan: <span id="memory-pairs">0</span>/8</span>
+                        </div>
+                        <div class="stat-box">
+                            <i class="fas fa-clock"></i>
+                            <span>Waktu: <span id="memory-time">0</span>s</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-instruction">
+                    <p><i class="fas fa-info-circle"></i> Temukan pasangan kartu yang sama. Ingat posisi setiap kartu!</p>
+                </div>
+                
+                <div class="memory-content">
+                    <div class="memory-grid" id="memory-grid">
+                        <!-- Kartu akan dibuat dengan JavaScript -->
+                    </div>
+                    
+                    <div class="game-controls">
+                        <button class="control-btn" id="reset-memory">
+                            <i class="fas fa-redo"></i> Mulai Ulang
+                        </button>
+                        <button class="control-btn" id="hint-memory">
+                            <i class="fas fa-lightbulb"></i> Petunjuk (<span id="hints-left">3</span>x)
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Dibuat dengan <i class="fas fa-heart"></i> oleh GameZone | <span id="current-year">2024</span></p>
+            <div class="footer-links">
+                <button id="high-scores" class="small-btn">
+                    <i class="fas fa-medal"></i> Skor Tertinggi
+                </button>
+                <button id="sound-toggle" class="small-btn">
+                    <i class="fas fa-volume-up"></i> Suara: ON
+                </button>
+                <button id="help-btn" class="small-btn">
+                    <i class="fas fa-question-circle"></i> Bantuan
+                </button>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Modal untuk input nama -->
+    <div class="modal" id="name-modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-user-edit"></i> Masukkan Nama Pemain</h3>
+            <input type="text" id="player-name-input" placeholder="Nama kamu" maxlength="15">
+            <div class="modal-buttons">
+                <button id="save-name" class="action-btn">Simpan</button>
+                <button id="cancel-name" class="control-btn">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal untuk skor tertinggi -->
+    <div class="modal" id="scores-modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-medal"></i> Skor Tertinggi</h3>
+            <div class="scores-list" id="scores-list">
+                <!-- Daftar skor akan diisi dengan JavaScript -->
+            </div>
+            <div class="modal-buttons">
+                <button id="close-scores" class="control-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal bantuan -->
+    <div class="modal" id="help-modal">
+        <div class="modal-content">
+            <h3><i class="fas fa-question-circle"></i> Panduan Game</h3>
+            <div class="help-content">
+                <div class="help-section">
+                    <h4><i class="fas fa-calculator"></i> Game Matematika</h4>
+                    <p>Jawab soal matematika dengan cepat. Setiap jawaban benar = 10 poin. Waktu 60 detik.</p>
+                </div>
+                <div class="help-section">
+                    <h4><i class="fas fa-times-circle"></i> Tic Tac Toe</h4>
+                    <p>Dapatkan 3 simbol berurutan (horizontal, vertikal, diagonal) untuk menang.</p>
+                </div>
+                <div class="help-section">
+                    <h4><i class="fas fa-bomb"></i> Block Blast</h4>
+                    <p>Klik kelompok balok warna sama (minimal 2) untuk menghancurkannya dan dapatkan poin.</p>
+                </div>
+                <div class="help-section">
+                    <h4><i class="fas fa-brain"></i> Memory Game</h4>
+                    <p>Temukan semua pasangan kartu dengan gerakan dan waktu seminimal mungkin.</p>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button id="close-help" class="control-btn">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
