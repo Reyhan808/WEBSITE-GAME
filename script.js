@@ -877,4 +877,658 @@ function showNotification(message, type = 'info') {
 }
 
 // Initialize everything when DOM is loaded
+
 document.addEventListener('DOMContentLoaded', init);
+
+
+// ====================================
+// GAME MATRIX
+// ====================================
+
+let matrixScore = 0;
+let matrixCorrect = 0;
+let matrixTimeLeft = 120;
+let matrixTimer;
+let currentMatrixProblem = null;
+
+function initMatrixGame() {
+    document.getElementById('matrix-score').textContent = matrixScore;
+    document.getElementById('matrix-correct').textContent = matrixCorrect;
+    document.getElementById('matrix-time').textContent = matrixTimeLeft;
+    
+    generateMatrixProblem();
+    startMatrixTimer();
+}
+
+function startMatrixTimer() {
+    if (matrixTimer) clearInterval(matrixTimer);
+    
+    matrixTimer = setInterval(() => {
+        matrixTimeLeft--;
+        document.getElementById('matrix-time').textContent = matrixTimeLeft;
+        
+        if (matrixTimeLeft <= 0) {
+            endMatrixGame();
+        }
+    }, 1000);
+}
+
+function generateMatrixProblem() {
+    const operations = ['+', '-', '×'];
+    const operation = operations[Math.floor(Math.random() * operations.length)];
+    const size = Math.floor(Math.random() * 2) + 2; // 2x2 or 3x3
+    
+    let matrixA = [];
+    let matrixB = [];
+    
+    // Generate random matrices
+    for (let i = 0; i < size; i++) {
+        matrixA[i] = [];
+        matrixB[i] = [];
+        for (let j = 0; j < size; j++) {
+            matrixA[i][j] = Math.floor(Math.random() * 20) - 10;
+            matrixB[i][j] = Math.floor(Math.random() * 20) - 10;
+        }
+    }
+    
+    // Calculate answer
+    let answer;
+    switch(operation) {
+        case '+':
+            answer = addMatrices(matrixA, matrixB);
+            document.getElementById('matrix-type').textContent = 'Penjumlahan Matriks';
+            break;
+        case '-':
+            answer = subtractMatrices(matrixA, matrixB);
+            document.getElementById('matrix-type').textContent = 'Pengurangan Matriks';
+            break;
+        case '×':
+            answer = multiplyMatrices(matrixA, matrixB);
+            document.getElementById('matrix-type').textContent = 'Perkalian Matriks';
+            break;
+    }
+    
+    currentMatrixProblem = { matrixA, matrixB, operation, answer, size };
+    
+    displayMatrixProblem(matrixA, matrixB, operation, size);
+}
+
+function addMatrices(a, b) {
+    return a.map((row, i) => row.map((val, j) => val + b[i][j]));
+}
+
+function subtractMatrices(a, b) {
+    return a.map((row, i) => row.map((val, j) => val - b[i][j]));
+}
+
+function multiplyMatrices(a, b) {
+    const result = [];
+    for (let i = 0; i < a.length; i++) {
+        result[i] = [];
+        for (let j = 0; j < b[0].length; j++) {
+            let sum = 0;
+            for (let k = 0; k < a[0].length; k++) {
+                sum += a[i][k] * b[k][j];
+            }
+            result[i][j] = sum;
+        }
+    }
+    return result;
+}
+
+function displayMatrixProblem(matrixA, matrixB, operation, size) {
+    const matrixADisplay = document.getElementById('matrix-a');
+    const matrixBDisplay = document.getElementById('matrix-b');
+    const matrixInput = document.getElementById('matrix-input');
+    const matrixOp = document.getElementById('matrix-op');
+    
+    // Display operation
+    matrixOp.textContent = operation === '×' ? '×' : operation;
+    
+    // Display matrix A
+    matrixADisplay.innerHTML = '<div class="matrix-title">Matrix A</div>';
+    matrixA.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        row.forEach(val => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            cell.textContent = val;
+            rowDiv.appendChild(cell);
+        });
+        matrixADisplay.appendChild(rowDiv);
+    });
+    
+    // Display matrix B
+    matrixBDisplay.innerHTML = '<div class="matrix-title">Matrix B</div>';
+    matrixB.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        row.forEach(val => {
+            const cell = document.createElement('div');
+            cell.className = 'matrix-cell';
+            cell.textContent = val;
+            rowDiv.appendChild(cell);
+        });
+        matrixBDisplay.appendChild(rowDiv);
+    });
+    
+    // Create input matrix
+    matrixInput.innerHTML = '<div class="matrix-title">Jawaban</div>';
+    for (let i = 0; i < size; i++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        for (let j = 0; j < size; j++) {
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'matrix-cell';
+            input.dataset.row = i;
+            input.dataset.col = j;
+            input.placeholder = '?';
+            rowDiv.appendChild(input);
+        }
+        matrixInput.appendChild(rowDiv);
+    }
+}
+
+function checkMatrixAnswer() {
+    const inputs = document.querySelectorAll('#matrix-input input');
+    const answer = currentMatrixProblem.answer;
+    let allCorrect = true;
+    
+    inputs.forEach(input => {
+        const row = parseInt(input.dataset.row);
+        const col = parseInt(input.dataset.col);
+        const userAnswer = parseInt(input.value);
+        const correctAnswer = answer[row][col];
+        
+        if (userAnswer === correctAnswer) {
+            input.classList.add('correct');
+            input.classList.remove('incorrect');
+        } else {
+            input.classList.add('incorrect');
+            input.classList.remove('correct');
+            allCorrect = false;
+        }
+    });
+    
+    if (allCorrect) {
+        matrixScore += 20;
+        matrixCorrect++;
+        document.getElementById('matrix-score').textContent = matrixScore;
+        document.getElementById('matrix-correct').textContent = matrixCorrect;
+        
+        // Add time bonus
+        matrixTimeLeft += 10;
+        document.getElementById('matrix-time').textContent = matrixTimeLeft;
+        
+        setTimeout(() => generateMatrixProblem(), 1500);
+    }
+}
+
+function endMatrixGame() {
+    clearInterval(matrixTimer);
+    alert(`Waktu habis! Skor akhir: ${matrixScore}\nJawaban benar: ${matrixCorrect}/10`);
+    saveHighScore('Matrix', matrixScore);
+}
+
+function resetMatrixGame() {
+    clearInterval(matrixTimer);
+    matrixScore = 0;
+    matrixCorrect = 0;
+    matrixTimeLeft = 120;
+    initMatrixGame();
+}
+
+// ====================================
+// GAME BARISAN DAN DERET
+// ====================================
+
+let sequenceScore = 0;
+let sequenceLevel = 1;
+let sequenceCombo = 0;
+let sequenceHints = 3;
+let currentSequenceProblem = null;
+
+function initSequenceGame() {
+    document.getElementById('sequence-score').textContent = sequenceScore;
+    document.getElementById('sequence-level').textContent = sequenceLevel;
+    document.getElementById('sequence-combo').textContent = sequenceCombo;
+    document.getElementById('sequence-hints-left').textContent = sequenceHints;
+    
+    generateSequenceProblem();
+}
+
+function generateSequenceProblem() {
+    const problemTypes = ['aritmatika', 'geometri', 'fibonacci', 'kuadrat'];
+    const type = problemTypes[Math.floor(Math.random() * problemTypes.length)];
+    
+    let sequence = [];
+    let question = '';
+    let correctAnswer;
+    let options = [];
+    
+    switch(type) {
+        case 'aritmatika':
+            const a1 = Math.floor(Math.random() * 10) + 1;
+            const diff = Math.floor(Math.random() * 5) + 1;
+            sequence = generateArithmeticSequence(a1, diff, 5);
+            question = `Suku ke-8 dari barisan aritmatika ini adalah?`;
+            correctAnswer = a1 + 7 * diff;
+            document.getElementById('sequence-question-type').textContent = 'Barisan Aritmatika';
+            break;
+            
+        case 'geometri':
+            const g1 = Math.floor(Math.random() * 10) + 1;
+            const ratio = Math.floor(Math.random() * 3) + 2;
+            sequence = generateGeometricSequence(g1, ratio, 5);
+            question = `Suku ke-7 dari barisan geometri ini adalah?`;
+            correctAnswer = g1 * Math.pow(ratio, 6);
+            document.getElementById('sequence-question-type').textContent = 'Barisan Geometri';
+            break;
+            
+        case 'fibonacci':
+            sequence = [1, 1, 2, 3, 5];
+            question = `Suku ke-9 dari barisan Fibonacci ini adalah?`;
+            correctAnswer = 34;
+            document.getElementById('sequence-question-type').textContent = 'Barisan Fibonacci';
+            break;
+            
+        case 'kuadrat':
+            const n = Math.floor(Math.random() * 5) + 1;
+            for (let i = 1; i <= 5; i++) {
+                sequence.push(i * i + n);
+            }
+            question = `Berapa jumlah 10 suku pertama?`;
+            correctAnswer = calculateQuadraticSum(n);
+            document.getElementById('sequence-question-type').textContent = 'Barisan Kuadrat';
+            break;
+    }
+    
+    // Generate wrong answers
+    options = generateOptions(correctAnswer);
+    
+    currentSequenceProblem = { type, sequence, question, correctAnswer, options };
+    
+    displaySequenceProblem(sequence, question, options);
+}
+
+function generateArithmeticSequence(first, diff, length) {
+    const sequence = [];
+    for (let i = 0; i < length; i++) {
+        sequence.push(first + i * diff);
+    }
+    return sequence;
+}
+
+function generateGeometricSequence(first, ratio, length) {
+    const sequence = [];
+    for (let i = 0; i < length; i++) {
+        sequence.push(first * Math.pow(ratio, i));
+    }
+    return sequence;
+}
+
+function calculateQuadraticSum(n) {
+    let sum = 0;
+    for (let i = 1; i <= 10; i++) {
+        sum += i * i + n;
+    }
+    return sum;
+}
+
+function generateOptions(correct) {
+    const options = [correct];
+    while (options.length < 4) {
+        const wrong = correct + (Math.floor(Math.random() * 20) - 10);
+        if (wrong !== correct && !options.includes(wrong)) {
+            options.push(wrong);
+        }
+    }
+    return shuffleArray(options);
+}
+
+function displaySequenceProblem(sequence, question, options) {
+    const display = document.getElementById('sequence-display');
+    const problem = document.getElementById('sequence-problem');
+    const optionsContainer = document.getElementById('sequence-options');
+    
+    // Display sequence
+    display.innerHTML = '';
+    sequence.forEach(num => {
+        const numDiv = document.createElement('div');
+        numDiv.className = 'sequence-number';
+        numDiv.textContent = num;
+        display.appendChild(numDiv);
+    });
+    
+    // Display question
+    problem.textContent = question;
+    
+    // Display options
+    optionsContainer.innerHTML = '';
+    options.forEach((option, index) => {
+        const optionBtn = document.createElement('button');
+        optionBtn.className = 'sequence-option';
+        optionBtn.textContent = option;
+        optionBtn.onclick = () => checkSequenceAnswer(option);
+        optionsContainer.appendChild(optionBtn);
+    });
+}
+
+function checkSequenceAnswer(selected) {
+    const correct = currentSequenceProblem.correctAnswer;
+    const options = document.querySelectorAll('.sequence-option');
+    
+    options.forEach(option => {
+        if (parseInt(option.textContent) === correct) {
+            option.classList.add('correct');
+        }
+        if (parseInt(option.textContent) === selected && selected !== correct) {
+            option.classList.add('incorrect');
+        }
+        option.disabled = true;
+    });
+    
+    if (selected === correct) {
+        sequenceScore += 15 * sequenceLevel;
+        sequenceCombo++;
+        if (sequenceCombo % 3 === 0) {
+            sequenceLevel++;
+        }
+        
+        if (sequenceCombo >= 10) {
+            sequenceScore += 50; // Bonus combo
+        }
+        
+        document.getElementById('sequence-score').textContent = sequenceScore;
+        document.getElementById('sequence-level').textContent = sequenceLevel;
+        document.getElementById('sequence-combo').textContent = sequenceCombo;
+        
+        setTimeout(() => generateSequenceProblem(), 1500);
+    } else {
+        sequenceCombo = 0;
+        document.getElementById('sequence-combo').textContent = sequenceCombo;
+    }
+}
+
+function useSequenceHint() {
+    if (sequenceHints > 0) {
+        sequenceHints--;
+        document.getElementById('sequence-hints-left').textContent = sequenceHints;
+        
+        // Show one wrong option as disabled
+        const options = document.querySelectorAll('.sequence-option');
+        const wrongOptions = Array.from(options).filter(opt => 
+            parseInt(opt.textContent) !== currentSequenceProblem.correctAnswer
+        );
+        
+        if (wrongOptions.length > 0) {
+            const randomWrong = wrongOptions[Math.floor(Math.random() * wrongOptions.length)];
+            randomWrong.style.opacity = '0.5';
+            randomWrong.disabled = true;
+        }
+    }
+}
+
+function resetSequenceGame() {
+    sequenceScore = 0;
+    sequenceLevel = 1;
+    sequenceCombo = 0;
+    sequenceHints = 3;
+    initSequenceGame();
+}
+
+// ====================================
+// GAME BUNGA MAJEMUK & ANUITAS
+// ====================================
+
+let financeScore = 0;
+let currentFinanceProblem = null;
+let financeMode = 'bunga'; // 'bunga' or 'anuitas'
+
+function initFinanceGame() {
+    document.getElementById('finance-score').textContent = financeScore;
+    generateFinanceProblem();
+}
+
+function generateFinanceProblem() {
+    const modes = ['bunga', 'anuitas'];
+    financeMode = modes[Math.floor(Math.random() * modes.length)];
+    
+    let scenario = '';
+    let correctAnswer;
+    let principal, rate, period;
+    
+    switch(financeMode) {
+        case 'bunga':
+            principal = Math.floor(Math.random() * 100) * 1000000; // 1-100 juta
+            rate = (Math.floor(Math.random() * 15) + 5) / 100; // 5%-20%
+            period = Math.floor(Math.random() * 10) + 5; // 5-15 tahun
+            
+            scenario = `Anda menabung Rp ${formatRupiah(principal)} dengan suku bunga ${(rate * 100)}% per tahun (bunga majemuk). Berapa jumlah uang Anda setelah ${period} tahun?`;
+            correctAnswer = calculateCompoundInterest(principal, rate, period);
+            
+            document.getElementById('finance-mode').textContent = 'Bunga Majemuk';
+            break;
+            
+        case 'anuitas':
+            principal = Math.floor(Math.random() * 50) * 1000000; // 1-50 juta
+            rate = (Math.floor(Math.random() * 10) + 5) / 100; // 5%-15%
+            period = Math.floor(Math.random() * 5) + 3; // 3-8 tahun
+            
+            scenario = `Anda meminjam Rp ${formatRupiah(principal)} dengan anuitas tahunan, suku bunga ${(rate * 100)}% per tahun selama ${period} tahun. Berapa besar angsuran tahunan?`;
+            correctAnswer = calculateAnnuity(principal, rate, period);
+            
+            document.getElementById('finance-mode').textContent = 'Anuitas';
+            break;
+    }
+    
+    currentFinanceProblem = {
+        mode: financeMode,
+        scenario,
+        correctAnswer,
+        principal,
+        rate,
+        period
+    };
+    
+    // Set difficulty
+    const difficulty = period <= 5 ? 'Mudah' : period <= 10 ? 'Sedang' : 'Sulit';
+    document.getElementById('finance-difficulty').textContent = difficulty;
+    
+    // Fill inputs
+    document.getElementById('principal').value = principal;
+    document.getElementById('interest-rate').value = (rate * 100).toFixed(1);
+    document.getElementById('period').value = period;
+    document.getElementById('finance-result').value = '';
+    
+    displayFinanceScenario(scenario);
+}
+
+function calculateCompoundInterest(principal, rate, period) {
+    return principal * Math.pow(1 + rate, period);
+}
+
+function calculateAnnuity(principal, rate, period) {
+    const numerator = principal * rate * Math.pow(1 + rate, period);
+    const denominator = Math.pow(1 + rate, period) - 1;
+    return numerator / denominator;
+}
+
+function formatRupiah(amount) {
+    return amount.toLocaleString('id-ID');
+}
+
+function displayFinanceScenario(scenario) {
+    const scenarioDiv = document.getElementById('finance-scenario');
+    scenarioDiv.textContent = scenario;
+}
+
+function calculateCompound() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const rate = parseFloat(document.getElementById('interest-rate').value) / 100;
+    const period = parseFloat(document.getElementById('period').value);
+    
+    if (!principal || !rate || !period) {
+        alert('Harap isi semua field!');
+        return;
+    }
+    
+    const result = calculateCompoundInterest(principal, rate, period);
+    document.getElementById('finance-result').value = `Rp ${formatRupiah(Math.round(result))}`;
+}
+
+function calculateAnnuityPayment() {
+    const principal = parseFloat(document.getElementById('principal').value);
+    const rate = parseFloat(document.getElementById('interest-rate').value) / 100;
+    const period = parseFloat(document.getElementById('period').value);
+    
+    if (!principal || !rate || !period) {
+        alert('Harap isi semua field!');
+        return;
+    }
+    
+    const result = calculateAnnuity(principal, rate, period);
+    document.getElementById('finance-result').value = `Rp ${formatRupiah(Math.round(result))}/tahun`;
+}
+
+function checkFinanceAnswer() {
+    const userAnswer = parseFloat(document.getElementById('finance-result').value.replace(/[^\d]/g, ''));
+    const correctAnswer = Math.round(currentFinanceProblem.correctAnswer);
+    
+    if (!userAnswer) {
+        alert('Harap hitung terlebih dahulu!');
+        return;
+    }
+    
+    // Allow 1% tolerance
+    const tolerance = correctAnswer * 0.01;
+    const isCorrect = Math.abs(userAnswer - correctAnswer) <= tolerance;
+    
+    if (isCorrect) {
+        financeScore += 25;
+        document.getElementById('finance-score').textContent = financeScore;
+        alert('Jawaban benar! +25 poin');
+        
+        // Generate timeline visualization for compound interest
+        if (financeMode === 'bunga') {
+            showCompoundTimeline(
+                currentFinanceProblem.principal,
+                currentFinanceProblem.rate,
+                currentFinanceProblem.period
+            );
+        }
+        
+        setTimeout(() => generateFinanceProblem(), 2000);
+    } else {
+        alert(`Jawaban salah. Yang benar: Rp ${formatRupiah(correctAnswer)}`);
+    }
+}
+
+function showCompoundTimeline(principal, rate, period) {
+    let timelineHTML = '<div class="timeline">';
+    for (let i = 0; i <= period; i++) {
+        const amount = principal * Math.pow(1 + rate, i);
+        timelineHTML += `
+            <div class="timeline-year ${i === period ? 'current' : ''}">
+                <div>Tahun ${i}</div>
+                <div>Rp ${formatRupiah(Math.round(amount))}</div>
+            </div>
+        `;
+    }
+    timelineHTML += '</div>';
+    
+    // Append to scenario
+    const scenarioDiv = document.getElementById('finance-scenario');
+    scenarioDiv.innerHTML += timelineHTML;
+}
+
+function resetFinanceGame() {
+    financeScore = 0;
+    document.getElementById('finance-score').textContent = financeScore;
+    generateFinanceProblem();
+}
+
+// ====================================
+// UTILITY FUNCTIONS
+// ====================================
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// ====================================
+// EVENT LISTENERS
+// ====================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize games when their sections are shown
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('active')) {
+                    switch(target.id) {
+                        case 'matrix-game':
+                            initMatrixGame();
+                            break;
+                        case 'sequence-game':
+                            initSequenceGame();
+                            break;
+                        case 'finance-game':
+                            initFinanceGame();
+                            break;
+                    }
+                }
+            }
+        });
+    });
+    
+    // Observe game sections
+    const gameSections = document.querySelectorAll('.game-section');
+    gameSections.forEach(section => {
+        observer.observe(section, { attributes: true });
+    });
+    
+    // Matrix game event listeners
+    document.getElementById('check-matrix')?.addEventListener('click', checkMatrixAnswer);
+    document.getElementById('next-matrix')?.addEventListener('click', generateMatrixProblem);
+    document.getElementById('reset-matrix')?.addEventListener('click', resetMatrixGame);
+    document.getElementById('hint-matrix')?.addEventListener('click', () => {
+        // Show answer for one cell
+        const inputs = document.querySelectorAll('#matrix-input input');
+        if (inputs.length > 0) {
+            const randomInput = inputs[Math.floor(Math.random() * inputs.length)];
+            const row = parseInt(randomInput.dataset.row);
+            const col = parseInt(randomInput.dataset.col);
+            randomInput.value = currentMatrixProblem.answer[row][col];
+            randomInput.classList.add('correct');
+        }
+    });
+    
+    // Sequence game event listeners
+    document.getElementById('hint-sequence')?.addEventListener('click', useSequenceHint);
+    document.getElementById('reset-sequence')?.addEventListener('click', resetSequenceGame);
+    
+    // Finance game event listeners
+    document.getElementById('calculate-compound')?.addEventListener('click', calculateCompound);
+    document.getElementById('calculate-annuity')?.addEventListener('click', calculateAnnuityPayment);
+    document.getElementById('check-finance')?.addEventListener('click', checkFinanceAnswer);
+    document.getElementById('new-finance-problem')?.addEventListener('click', generateFinanceProblem);
+    document.getElementById('reset-finance')?.addEventListener('click', resetFinanceGame);
+    
+    // Add to high scores system
+    window.saveHighScore = function(game, score) {
+        const highScores = JSON.parse(localStorage.getItem('gamezoneHighScores') || '{}');
+        if (!highScores[game] || score > highScores[game].score) {
+            const playerName = document.getElementById('player-name').textContent;
+            highScores[game] = { name: playerName, score: score, date: new Date().toLocaleDateString() };
+            localStorage.setItem('gamezoneHighScores', JSON.stringify(highScores));
+        }
+    };
+});
